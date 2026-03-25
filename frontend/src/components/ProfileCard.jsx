@@ -69,6 +69,39 @@ export function ProfileCard({ profile }) {
           </div>
         </div>
       )}
+
+      {profile.achievements?.length > 0 && (
+        <div className="profile-section">
+          <h4>Achievements</h4>
+          <div className="tags">
+            {profile.achievements.map((a, i) => (
+              <span key={i} className="tag achievement">{a}</span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {profile.interests?.length > 0 && (
+        <div className="profile-section">
+          <h4>Interests</h4>
+          <div className="tags">
+            {profile.interests.map((item, i) => (
+              <span key={i} className="tag interest">{item}</span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {profile.personality_traits?.length > 0 && (
+        <div className="profile-section">
+          <h4>Personality Traits</h4>
+          <div className="tags">
+            {profile.personality_traits.map((t, i) => (
+              <span key={i} className="tag trait">{t}</span>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

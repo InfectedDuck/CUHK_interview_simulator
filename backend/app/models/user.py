@@ -26,6 +26,9 @@ class ProfileResponse(BaseModel):
     goals: str | None = None
     target_programs: list[str] | None = None
     target_universities: list[str] | None = None
+    achievements: list[str] | None = None
+    interests: list[str] | None = None
+    personality_traits: list[str] | None = None
     updated_at: str
 
 
@@ -36,3 +39,6 @@ class ProfileUpdate(BaseModel):
     goals: str | None = None
     target_programs: list[str] | None = None
     target_universities: list[str] | None = None
+    achievements: list[str] | None = None
+    interests: list[str] | None = None
+    personality_traits: list[str] | None = None

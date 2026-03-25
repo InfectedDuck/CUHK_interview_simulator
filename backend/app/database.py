@@ -20,6 +20,9 @@ CREATE TABLE IF NOT EXISTS profiles (
     goals               TEXT,
     target_programs     TEXT,
     target_universities TEXT,
+    achievements        TEXT,
+    interests           TEXT,
+    personality_traits   TEXT,
     updated_at          TEXT NOT NULL DEFAULT (datetime('now')),
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
@@ -58,8 +61,21 @@ async def get_db() -> aiosqlite.Connection:
     return db
 
 
+MIGRATIONS = [
+    "ALTER TABLE profiles ADD COLUMN achievements TEXT",
+    "ALTER TABLE profiles ADD COLUMN interests TEXT",
+    "ALTER TABLE profiles ADD COLUMN personality_traits TEXT",
+]
+
+
 async def init_db():
     db = await aiosqlite.connect(DATABASE_PATH)
     await db.executescript(SCHEMA)
+    # Run migrations for existing databases
+    for sql in MIGRATIONS:
+        try:
+            await db.execute(sql)
+        except Exception:
+            pass  # Column already exists
     await db.commit()
     await db.close()
