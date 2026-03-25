@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm create:*)",
+      "Bash(where node:*)",
+      "Bash(where npm:*)",
+      "Bash(cmd.exe /c \"where npm\")",
+      "Bash(cmd.exe /c \"where node\")",
+      "Bash(export PATH=\"$PATH:/c/Program Files/nodejs:/c/Users/ASUS/AppData/Roaming/npm\")",
+      "Read(//c/Program Files/**)",
+      "Read(//c/ProgramData/**)",
+      "Bash(cmd.exe /c \"npm --version\")",
+      "Bash(cmd.exe /c \"node --version && npm --version\")",
+      "Bash(export PATH=\"/c/Programming/node.js:$PATH\")",
+      "Bash(npm install:*)",
+      "Bash(python -m pip install -r requirements.txt)"
+    ]
+  }
+}
