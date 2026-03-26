@@ -4,11 +4,62 @@ from ..database import get_db
 from ..models.user import ProfileExtractRequest, ProfileResponse, ProfileUpdate
 from ..services.profile_extractor import extract_profile, extract_from_document, merge_profiles
 from ..services.document_parser import parse_document
+from ..services.whisper_stt import transcribe, clean_transcript
 
 router = APIRouter(tags=["profile"])
 
+
+@router.post("/transcribe")
+async def transcribe_audio(
+    file: UploadFile = File(...),
+    context: str = Form(""),
+    user_id: int | None = Form(None),
+    language: str = Form("en"),
+):
+    """Transcribe audio using Whisper, then AI-correct using profile context."""
+    audio_bytes = await file.read()
+    if not audio_bytes:
+        raise HTTPException(status_code=400, detail="Empty audio file")
+
+    raw_text = await transcribe(audio_bytes, language=language)
+    if not raw_text.strip():
+        raise HTTPException(status_code=400, detail="Could not transcribe audio — no speech detected")
+
+    # Build context for AI correction
+    full_context = context or ""
+
+    # If user_id provided, load their profile for better context
+    if user_id:
+        db = await get_db()
+        try:
+            rows = await db.execute_fetchall(
+                "SELECT * FROM profiles WHERE user_id = ?", (user_id,)
+            )
+            if rows:
+                row = dict(rows[0])
+                profile_parts = []
+                if row.get("education"):
+                    profile_parts.append(f"Education: {row['education']}")
+                if row.get("skills"):
+                    profile_parts.append(f"Skills: {row['skills']}")
+                if row.get("projects"):
+                    profile_parts.append(f"Projects: {row['projects']}")
+                if row.get("experience"):
+                    profile_parts.append(f"Experience: {row['experience']}")
+                if row.get("goals"):
+                    profile_parts.append(f"Goals: {row['goals']}")
+                if profile_parts:
+                    full_context += "\n\nUser profile:\n" + "\n".join(profile_parts)
+        finally:
+            await db.close()
+
+    # AI-correct the transcript using context
+    corrected = await clean_transcript(raw_text, full_context)
+
+    return {"text": corrected.strip(), "raw_text": raw_text.strip()}
+
 JSON_PROFILE_FIELDS = (
-    "education", "skills", "experience", "target_programs",
+    "education", "skills", "experience", "projects", "target_programs",
     "target_universities", "achievements", "interests", "personality_traits",
 )
 
@@ -48,6 +99,7 @@ async def _upsert_profile(db, user_id: int, extracted: dict, raw_text: str):
         "education": json.dumps(merged.get("education")),
         "skills": json.dumps(merged.get("skills")),
         "experience": json.dumps(merged.get("experience")),
+        "projects": json.dumps(merged.get("projects")),
         "goals": merged.get("goals"),
         "target_programs": json.dumps(merged.get("target_programs")),
         "target_universities": json.dumps(merged.get("target_universities")),

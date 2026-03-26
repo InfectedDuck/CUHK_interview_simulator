@@ -3,22 +3,25 @@ from ..config import settings
 
 
 async def generate(prompt: str, system: str | None = None) -> str:
+    messages = []
+    if system:
+        messages.append({"role": "system", "content": system})
+    messages.append({"role": "user", "content": prompt})
+
     payload = {
         "model": settings.ollama_model,
-        "prompt": prompt,
+        "messages": messages,
         "stream": False,
     }
-    if system:
-        payload["system"] = system
 
     async with httpx.AsyncClient() as client:
         resp = await client.post(
-            f"{settings.ollama_base_url}/api/generate",
+            f"{settings.ollama_base_url}/api/chat",
             json=payload,
             timeout=120.0,
         )
         resp.raise_for_status()
-        return resp.json()["response"]
+        return resp.json()["message"]["content"]
 
 
 async def health_check() -> bool:

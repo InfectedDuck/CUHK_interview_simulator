@@ -89,6 +89,7 @@ export function ProfilePage() {
             </p>
             <VoiceRecorder
               onTranscript={handleTranscript}
+              userId={parseInt(userId)}
               placeholder="Tap the microphone and introduce yourself..."
             />
             {extracting && (

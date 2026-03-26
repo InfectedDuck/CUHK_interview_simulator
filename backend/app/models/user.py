@@ -23,6 +23,7 @@ class ProfileResponse(BaseModel):
     education: dict | None = None
     skills: list[str] | None = None
     experience: list[dict] | None = None
+    projects: list[dict] | None = None
     goals: str | None = None
     target_programs: list[str] | None = None
     target_universities: list[str] | None = None
@@ -36,6 +37,7 @@ class ProfileUpdate(BaseModel):
     education: dict | None = None
     skills: list[str] | None = None
     experience: list[dict] | None = None
+    projects: list[dict] | None = None
     goals: str | None = None
     target_programs: list[str] | None = None
     target_universities: list[str] | None = None

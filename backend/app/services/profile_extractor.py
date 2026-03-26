@@ -8,6 +8,7 @@ You must return ONLY valid JSON with no explanation or markdown formatting."""
 JSON_FIELDS = """- "education": {{"level": "...", "institution": "...", "major": "...", "gpa": "..."}} (null if not mentioned)
 - "skills": ["skill1", "skill2", ...]
 - "experience": [{{"title": "...", "organization": "...", "description": "..."}}]
+- "projects": [{{"name": "project name", "description": "what the project does", "technologies": ["tech1", "tech2"], "role": "your role/contribution", "outcome": "results or impact"}}] — extract ALL projects, personal projects, academic projects, hackathon projects, etc. Include as much detail as possible about each project.
 - "goals": "string describing their goals"
 - "target_programs": ["program1", "program2", ...]
 - "target_universities": ["university1", "university2", ...]
@@ -29,6 +30,7 @@ DOCUMENT_PROMPT = """Analyze this document (a {doc_type}) and extract structured
 {fields}
 
 If a field is not found in the document, set it to null.
+For CVs/resumes: pay special attention to PROJECTS — extract every project with its name, description, technologies used, the student's role, and outcomes/impact. Do not skip any projects.
 For essays, also infer personality_traits and interests from the writing style and content.
 Return ONLY the JSON object.
 
@@ -64,7 +66,7 @@ def _parse_json_response(response: str) -> dict | None:
 
 def _empty_profile() -> dict:
     return {
-        "education": None, "skills": None, "experience": None,
+        "education": None, "skills": None, "experience": None, "projects": None,
         "goals": None, "target_programs": None, "target_universities": None,
         "achievements": None, "interests": None, "personality_traits": None,
     }

@@ -41,6 +41,27 @@ export function ProfileCard({ profile }) {
         </div>
       )}
 
+      {profile.projects?.length > 0 && (
+        <div className="profile-section">
+          <h4>Projects</h4>
+          {profile.projects.map((proj, i) => (
+            <div key={i} className="project-item">
+              <strong>{proj.name || "Unnamed Project"}</strong>
+              {proj.description && <p>{proj.description}</p>}
+              {proj.technologies?.length > 0 && (
+                <div className="tags" style={{ marginTop: 4 }}>
+                  {proj.technologies.map((t, j) => (
+                    <span key={j} className="tag">{t}</span>
+                  ))}
+                </div>
+              )}
+              {proj.role && <p className="project-meta"><em>Role:</em> {proj.role}</p>}
+              {proj.outcome && <p className="project-meta"><em>Outcome:</em> {proj.outcome}</p>}
+            </div>
+          ))}
+        </div>
+      )}
+
       {profile.goals && (
         <div className="profile-section">
           <h4>Goals</h4>

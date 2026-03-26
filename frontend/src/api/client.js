@@ -39,24 +39,74 @@ export const api = {
     }),
 
   // Interview
-  startInterview: (userId, targetUniversity) =>
+  startInterview: (userId, targetUniversity, targetProgram, mode, difficulty) =>
     request("/api/interview/start", {
       method: "POST",
       body: JSON.stringify({
         user_id: userId,
         target_university: targetUniversity,
+        target_program: targetProgram,
+        mode: mode || "practice",
+        difficulty: difficulty || "medium",
       }),
     }),
-  submitAnswer: (sessionId, answerText) =>
+  submitAnswer: (sessionId, answerText, responseTimeSeconds) =>
     request(`/api/interview/${sessionId}/answer`, {
       method: "POST",
-      body: JSON.stringify({ answer_text: answerText }),
+      body: JSON.stringify({
+        answer_text: answerText,
+        response_time_seconds: responseTimeSeconds,
+      }),
     }),
   endInterview: (sessionId) =>
     request(`/api/interview/${sessionId}/end`, { method: "POST" }),
+
+  // Answer improvement
+  improveAnswer: (sessionId, exchangeId) =>
+    request(`/api/interview/${sessionId}/exchange/${exchangeId}/improve`, {
+      method: "POST",
+    }),
+
+  // Replay
+  replayAnswer: (sessionId, exchangeId, answerText) =>
+    request(`/api/interview/${sessionId}/replay/${exchangeId}`, {
+      method: "POST",
+      body: JSON.stringify({ answer_text: answerText }),
+    }),
 
   // Sessions
   listSessions: (userId) => request(`/api/sessions/${userId}`),
   getSession: (userId, sessionId) =>
     request(`/api/sessions/${userId}/${sessionId}`),
+
+  // Analytics
+  getAnalytics: (userId) => request(`/api/analytics/${userId}`),
+
+  // Briefing
+  generateBriefing: (userId, university, program) =>
+    request(`/api/briefing/${userId}`, {
+      method: "POST",
+      body: JSON.stringify({ university, program }),
+    }),
+  getInterviewFormat: (university, program) =>
+    request(`/api/briefing/format?university=${encodeURIComponent(university)}&program=${encodeURIComponent(program || "")}`),
+  getPrograms: () => request("/api/briefing/programs"),
+
+  // Whisper transcription with AI context correction
+  transcribe: async (audioBlob, { userId, context, language } = {}) => {
+    const formData = new FormData();
+    formData.append("file", audioBlob, "recording.webm");
+    if (userId) formData.append("user_id", userId);
+    if (context) formData.append("context", context);
+    if (language) formData.append("language", language);
+    const res = await fetch(
+      `${API_URL}/api/transcribe`,
+      { method: "POST", body: formData }
+    );
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ detail: res.statusText }));
+      throw new Error(err.detail || "Transcription failed");
+    }
+    return res.json();
+  },
 };

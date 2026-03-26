@@ -13,7 +13,13 @@
       "Bash(cmd.exe /c \"node --version && npm --version\")",
       "Bash(export PATH=\"/c/Programming/node.js:$PATH\")",
       "Bash(npm install:*)",
-      "Bash(python -m pip install -r requirements.txt)"
+      "Bash(python -m pip install -r requirements.txt)",
+      "Bash(python -c \"import app.main; print\\(''Backend imports OK''\\)\")",
+      "Bash(python -m pip install faster-whisper)",
+      "Bash(python -m pip install pytest -q)",
+      "Bash(python -m pytest tests/ -v)",
+      "Bash(python -m pytest tests/ -v --tb=short)",
+      "Bash(python -c \":*)"
     ]
   }
 }

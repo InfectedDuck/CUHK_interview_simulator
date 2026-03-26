@@ -24,6 +24,11 @@ export function HistoryPage() {
           ← Back
         </button>
         <h1>Interview History</h1>
+        {sessions.length > 0 && (
+          <button className="btn btn-secondary" onClick={() => navigate(`/analytics/${userId}`)}>
+            Analytics
+          </button>
+        )}
       </div>
 
       {sessions.length === 0 ? (
