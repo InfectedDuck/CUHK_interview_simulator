@@ -486,7 +486,7 @@ All settings configurable via environment variables (prefix `INTERVIEW_`):
 | `INTERVIEW_LLM_PROVIDER` | `ollama` | LLM provider: `ollama` (local) or `openrouter` (cloud) |
 | `INTERVIEW_OLLAMA_MODEL` | `mistral:7b-instruct-q4_0` | Ollama model name |
 | `INTERVIEW_OPENROUTER_API_KEY` | *(empty)* | OpenRouter API key ([get one free](https://openrouter.ai/keys)) |
-| `INTERVIEW_OPENROUTER_MODEL` | `mistralai/mistral-7b-instruct:free` | OpenRouter model (free tier) |
+| `INTERVIEW_OPENROUTER_MODEL` | `nvidia/nemotron-nano-9b-v2:free` | OpenRouter model (free tier) |
 | `INTERVIEW_WHISPER_MODEL` | `base` | Whisper model (tiny/base/small/medium) |
 | `INTERVIEW_WHISPER_LANGUAGE` | `en` | Speech recognition language |
 | `INTERVIEW_MAX_QUESTIONS_PER_SESSION` | `5` | Base questions per interview |
@@ -519,7 +519,7 @@ git push -u origin main
    |-----|-------|
    | `INTERVIEW_LLM_PROVIDER` | `openrouter` |
    | `INTERVIEW_OPENROUTER_API_KEY` | `sk-or-...` (your key from [openrouter.ai/keys](https://openrouter.ai/keys)) |
-   | `INTERVIEW_OPENROUTER_MODEL` | `mistralai/mistral-7b-instruct:free` |
+   | `INTERVIEW_OPENROUTER_MODEL` | `nvidia/nemotron-nano-9b-v2:free` |
    | `INTERVIEW_CORS_ORIGINS` | `["https://YOUR-APP.vercel.app"]` |
    | `INTERVIEW_WHISPER_MODEL` | `tiny` |
 5. Click **Create Web Service** — note the URL (e.g., `https://interview-tester-api.onrender.com`)

@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     ollama_model: str = "mistral:7b-instruct-q4_0"
     # OpenRouter settings (cloud)
     openrouter_api_key: str = ""
-    openrouter_model: str = "mistralai/mistral-7b-instruct:free"
+    openrouter_model: str = "nvidia/nemotron-nano-9b-v2:free"
     # General
     database_path: str = "interview_tester.db"
     cors_origins: list[str] = ["http://localhost:5173"]
