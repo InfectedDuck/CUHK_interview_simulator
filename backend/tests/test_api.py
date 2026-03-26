@@ -28,7 +28,8 @@ class TestHealth:
         assert response.status_code == 200
         data = response.json()
         assert data["status"] == "ok"
-        assert "ollama" in data
+        assert "llm_status" in data
+        assert "llm_provider" in data
         assert "model" in data
 
 

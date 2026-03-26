@@ -32,17 +32,12 @@ app.include_router(briefing.router, prefix="/api")
 
 
 @app.get("/api/health")
-async def health_check():
-    import httpx
-    try:
-        async with httpx.AsyncClient() as client:
-            resp = await client.get(f"{settings.ollama_base_url}/api/tags", timeout=5.0)
-            ollama_status = "connected" if resp.status_code == 200 else "error"
-    except Exception:
-        ollama_status = "disconnected"
-
+async def health_endpoint():
+    from .services.ollama import health_check
+    llm = await health_check()
     return {
         "status": "ok",
-        "ollama": ollama_status,
-        "model": settings.ollama_model,
+        "llm_status": llm["status"],
+        "llm_provider": llm["provider"],
+        "model": llm["model"],
     }

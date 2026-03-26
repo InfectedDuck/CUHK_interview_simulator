@@ -38,14 +38,14 @@ export function HomePage() {
       <h1>Interview Tester</h1>
       <p className="subtitle">Practice university admission interviews with AI</p>
 
-      {health && health.ollama !== "connected" && (
+      {health && health.llm_status !== "connected" && (
         <div className="banner warning">
-          ⚠ Ollama is not running. Start Ollama to enable AI features.
+          ⚠ AI service ({health.llm_provider || "unknown"}) is not available.
         </div>
       )}
-      {health && health.ollama === "connected" && (
+      {health && health.llm_status === "connected" && (
         <div className="banner success">
-          ✓ Connected to Ollama (model: {health.model})
+          ✓ Connected to {health.llm_provider} (model: {health.model})
         </div>
       )}
 

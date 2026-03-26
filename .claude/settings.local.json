@@ -19,7 +19,10 @@
       "Bash(python -m pip install pytest -q)",
       "Bash(python -m pytest tests/ -v)",
       "Bash(python -m pytest tests/ -v --tb=short)",
-      "Bash(python -c \":*)"
+      "Bash(python -c \":*)",
+      "Bash(grep -r \"ollama\\\\|LLM\\\\|generate\" /c/Users/ASUS/Desktop/projects/1st/interview_tester/backend/app/services/*.py)",
+      "Bash(grep -E \"\\\\.\\(py|js|json\\)$\")",
+      "Bash(python -c \"import app.main; print\\(''Backend OK''\\)\")"
     ]
   }
 }

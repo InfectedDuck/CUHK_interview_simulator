@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: interview-tester-api
+    runtime: python
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: cd backend && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: INTERVIEW_LLM_PROVIDER
+        value: openrouter
+      - key: INTERVIEW_OPENROUTER_API_KEY
+        sync: false
+      - key: INTERVIEW_OPENROUTER_MODEL
+        value: mistralai/mistral-7b-instruct:free
+      - key: INTERVIEW_CORS_ORIGINS
+        sync: false
+      - key: INTERVIEW_WHISPER_MODEL
+        value: tiny

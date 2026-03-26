@@ -40,12 +40,12 @@ This platform replicates what a top-tier interview coach does:
 |-------|-----------|---------|
 | Frontend | React 19 + Vite | Interactive web UI with voice recording |
 | Backend | FastAPI + Python 3.14 | API server, AI orchestration, document parsing |
-| LLM | Ollama + Mistral 7B | Question generation, answer analysis, coaching |
+| LLM | Ollama (local) or OpenRouter (cloud) | Question generation, answer analysis, coaching |
 | Speech-to-Text | faster-whisper (base) | Local audio transcription with AI correction |
 | Database | SQLite + aiosqlite | Session history, profiles, analytics |
 | Document Parser | pdfplumber + python-docx | CV/essay text extraction |
 
-**Everything runs locally.** No API keys, no cloud services, no data leaves the machine.
+**Dual mode:** Runs fully local with Ollama (no API keys, no data leaves the machine), or deploys to the cloud with OpenRouter using free models.
 
 ---
 
@@ -399,7 +399,9 @@ interview_tester/
     │       ├── UniversitySelector.jsx         # HK university dropdown
     │       ├── CUHKProgramSelector.jsx        # CUHK program/faculty dropdown
     │       ├── DocumentUpload.jsx             # File upload for CV/essays
-    │       └── ProfileCard.jsx               # Structured profile display
+    │       ├── ProfileCard.jsx               # Structured profile display
+    │       ├── InterviewReport.jsx           # Print-optimized PDF report layout
+    │       └── ThemeToggle.jsx               # Dark/light mode toggle
     ├── index.html
     ├── vite.config.js
     └── package.json
@@ -414,6 +416,7 @@ interview_tester/
 | `GET` | `/api/health` | System health + Ollama status |
 | `POST` | `/api/users` | Create user |
 | `GET` | `/api/users` | List users |
+| `GET` | `/api/users/{id}` | Get user details |
 | `POST` | `/api/transcribe` | Audio -> text (Whisper + AI correction) |
 | `POST` | `/api/profile/extract` | Voice transcript -> structured profile |
 | `POST` | `/api/profile/upload` | Document upload -> profile extraction |
@@ -480,24 +483,80 @@ All settings configurable via environment variables (prefix `INTERVIEW_`):
 
 | Variable | Default | Description |
 |----------|---------|-------------|
+| `INTERVIEW_LLM_PROVIDER` | `ollama` | LLM provider: `ollama` (local) or `openrouter` (cloud) |
 | `INTERVIEW_OLLAMA_MODEL` | `mistral:7b-instruct-q4_0` | Ollama model name |
+| `INTERVIEW_OPENROUTER_API_KEY` | *(empty)* | OpenRouter API key ([get one free](https://openrouter.ai/keys)) |
+| `INTERVIEW_OPENROUTER_MODEL` | `mistralai/mistral-7b-instruct:free` | OpenRouter model (free tier) |
 | `INTERVIEW_WHISPER_MODEL` | `base` | Whisper model (tiny/base/small/medium) |
 | `INTERVIEW_WHISPER_LANGUAGE` | `en` | Speech recognition language |
 | `INTERVIEW_MAX_QUESTIONS_PER_SESSION` | `5` | Base questions per interview |
+| `INTERVIEW_CORS_ORIGINS` | `["http://localhost:5173"]` | Allowed frontend origins |
+
+---
+
+## Cloud Deployment
+
+The app deploys as two services: **frontend on Vercel** (free) + **backend on Render** (free).
+
+### Step 1: Push to GitHub
+
+```bash
+git add -A && git commit -m "Prepare for deployment"
+git remote add origin https://github.com/YOUR_USERNAME/interview-tester.git
+git push -u origin main
+```
+
+### Step 2: Deploy Backend on Render
+
+1. Go to [render.com](https://render.com) and sign up (free)
+2. Click **New > Web Service** and connect your GitHub repo
+3. Configure:
+   - **Root directory:** `backend`
+   - **Build command:** `pip install -r requirements.txt`
+   - **Start command:** `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+4. Add environment variables:
+   | Key | Value |
+   |-----|-------|
+   | `INTERVIEW_LLM_PROVIDER` | `openrouter` |
+   | `INTERVIEW_OPENROUTER_API_KEY` | `sk-or-...` (your key from [openrouter.ai/keys](https://openrouter.ai/keys)) |
+   | `INTERVIEW_OPENROUTER_MODEL` | `mistralai/mistral-7b-instruct:free` |
+   | `INTERVIEW_CORS_ORIGINS` | `["https://YOUR-APP.vercel.app"]` |
+   | `INTERVIEW_WHISPER_MODEL` | `tiny` |
+5. Click **Create Web Service** — note the URL (e.g., `https://interview-tester-api.onrender.com`)
+
+### Step 3: Deploy Frontend on Vercel
+
+1. Go to [vercel.com](https://vercel.com) and import your GitHub repo
+2. Configure:
+   - **Root directory:** `frontend`
+   - **Framework preset:** Vite
+3. Add environment variable:
+   | Key | Value |
+   |-----|-------|
+   | `VITE_API_URL` | `https://interview-tester-api.onrender.com` |
+4. Click **Deploy**
+
+### Free Tier Notes
+
+- **Render free tier** spins down after 15 min of inactivity. First request takes ~30s to wake up. This is normal for a demo.
+- **OpenRouter free models** have rate limits (~10 req/min). Fine for normal use, may throttle rapid clicking.
+- **SQLite on Render free tier** is ephemeral — data resets on each deploy. For persistent data, upgrade to Render paid ($7/mo) or switch to Supabase PostgreSQL.
 
 ---
 
 ## Technical Highlights
 
+**Provider-Agnostic LLM Layer:** A single `generate(prompt, system)` function serves all 10 call sites across 9 services. Switching between Ollama (local) and OpenRouter (cloud) requires changing one environment variable — zero code changes.
+
 **Prompt Engineering:** Every AI interaction uses carefully crafted prompts with structured output parsing, retry logic for malformed JSON, and context injection from CUHK knowledge base + student profile.
 
-**Async Architecture:** All Ollama calls, database operations, and Whisper transcription are fully async using `asyncio`, `aiosqlite`, and `httpx.AsyncClient`. Whisper runs in a thread pool executor to avoid blocking the event loop.
+**Async Architecture:** All LLM calls, database operations, and Whisper transcription are fully async using `asyncio`, `aiosqlite`, and `httpx.AsyncClient`. Whisper runs in a thread pool executor to avoid blocking the event loop.
 
 **Adaptive Algorithms:** The conversation engine uses a strategy classifier that considers answer scores, question position, interview progress, and remaining questions to determine the optimal next question type — implementing a state machine over the interview conversation.
 
 **Profile Merging:** Multiple document uploads don't overwrite — the AI intelligently merges new information with existing data, combining skill lists, adding new projects, and keeping the more detailed version of each field.
 
-**Local-First Privacy:** All processing (LLM, speech recognition, document parsing) happens on the user's machine. No data is sent to external services. Suitable for processing sensitive personal information like CVs and academic records.
+**Local-First with Cloud Option:** Runs fully local with Ollama for privacy, or deploys to the cloud with OpenRouter. The same codebase supports both modes via environment configuration.
 
 ---
 
