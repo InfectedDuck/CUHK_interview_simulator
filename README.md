@@ -1,6 +1,14 @@
 # Interview Tester
 
 **An AI-powered university admission interview preparation platform built specifically for Hong Kong's top universities, with deep intelligence for CUHK.**
+**Live Demo:** [cuhkinterviewsimulator.vercel.app](https://cuhkinterviewsimulator.vercel.app/)
+
+> **Note:** The live demo uses a free-tier AI model and free hosting. Please be aware:
+> - **Responses may take 15-60 seconds** — the free AI model processes requests slower than paid models, and each interview action involves multiple AI calls (scoring + question generation + context correction).
+> - **First visit may take ~30 seconds to load** — Render free tier sleeps after 15 minutes of inactivity and needs time to wake up.
+> - **Data resets periodically** — Render free tier does not persist data between restarts. Your profile and interview history may be cleared. For persistent data, run the project locally.
+>
+> For the best experience, run the project locally with Ollama (see [Setup & Running](#setup--running)).
 
 Students upload their CV, speak their introduction, and practice realistic admission interviews with an AI interviewer that adapts to their answers, probes deeper on weak responses, asks about their specific projects, and provides professional-grade coaching feedback — all running locally with zero cloud dependencies.
 
